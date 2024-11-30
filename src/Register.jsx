@@ -106,7 +106,15 @@ const Register = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
+              style={{
+                borderColor: passwordx && confirmPassword && passwordx !== confirmPassword ? 'red' : ''
+              }}
             />
+            {passwordx && confirmPassword && passwordx !== confirmPassword && (
+              <Form.Text className="text-danger">
+                Passwords do not match.
+              </Form.Text>
+            )}
           </Form.Group>
 
           <Button variant="primary" type="submit" className="mt-3" disabled={isLoading}>
