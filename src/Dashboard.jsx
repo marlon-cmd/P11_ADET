@@ -76,9 +76,9 @@ const Dashboard = () => {
       <Container>
         <Navbar.Brand href="#home">My College Portal</Navbar.Brand>
         <Nav className="me-auto">
-          <Nav.Link href="#home">Home</Nav.Link>
-          <Nav.Link href="#features">Features</Nav.Link>
-          <Nav.Link href="#pricing">Pricing</Nav.Link>
+          <Nav.Link href="#Departments">Departments</Nav.Link>
+          <Nav.Link href="#Courses">Course</Nav.Link>
+          <Nav.Link href="#Students">Students</Nav.Link>
         </Nav>
         <Nav>
           <NavDropdown
