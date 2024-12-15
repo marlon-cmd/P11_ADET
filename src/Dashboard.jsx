@@ -28,6 +28,36 @@ function Dashboard() {
   const [newUsername, setNewUsername] = useState(''); // For the new username
   const [newFullname, setNewFullname] = useState(''); // For the new fullname
   const [newPassword, setNewPassword] = useState(''); // For the new password
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    // Fetch the saved theme from localStorage when the component mounts
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setIsDarkMode(true);
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, []);
+
+    // Toggle Dark/Light Mode
+    const toggleTheme = () => {
+      setIsDarkMode((prevMode) => {
+        const newMode = !prevMode;
+  
+        if (newMode) {
+          document.body.classList.add('dark-mode');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          document.body.classList.remove('dark-mode');
+          localStorage.setItem('theme', 'light');
+        }
+  
+        return newMode;
+      });
+    };
+
 
   // Fetch and decode user ID when the component mounts
   useEffect(() => {
@@ -174,6 +204,7 @@ const [show1, setShow1] = useState(false);
 const handleClose1 = () => setShow1(false);
 
 const handleShow1 = (row_users) => {
+  console.log("User selected:", row_users);
     setSelectedUser(row_users);
     setShow1(true);
 };
@@ -264,6 +295,9 @@ const handleCloseModal = () => {
               <NavDropdown title={user ? `User: ${user.username}` : 'Dropdown'} id="basic-nav-dropdown" align="end" style={{fontWeight: 'bold'}}>
                 <NavDropdown.Item href="#">Profile</NavDropdown.Item>
                 <NavDropdown.Item href="#">Settings</NavDropdown.Item>
+                <NavDropdown.Item href="#" onClick={toggleTheme}>
+                  {isDarkMode? 'Light Mode' : 'Dark Mode'}
+                  </NavDropdown.Item>
                 <NavDropdown.Item href="#" onClick={handleLogout}>
                   Logout
                 </NavDropdown.Item>
@@ -291,7 +325,7 @@ const handleCloseModal = () => {
             <tr>
               <th style={{ padding: 1, margin: 0 }}><center>ID</center></th>
               <th style={{ padding: 1, margin: 0 }}><center>Username</center></th>
-              <th style={{ padding: 1, margin: 0 }}><center>Password</center></th>
+              <th style={{ padding: 1, margin: 0 }}><center>Fullname</center></th>
               <th style={{ padding: 1, margin: 0, width: '260px' }}>
                 <center>Action</center>
               </th>
@@ -374,7 +408,7 @@ const handleCloseModal = () => {
       {/* User Details Modal */}
       <Modal show={show1} onHide={handleClose1}>
         <Modal.Header closeButton>
-          <Modal.Title>Row Details</Modal.Title>
+          <Modal.Title>User Details</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -388,6 +422,9 @@ const handleCloseModal = () => {
               </p>
               <p>
                 <strong>Username:</strong> {selectedUser.username}
+              </p>
+              <p>
+                <strong>Password: (Not shown for security purpose)</strong> {selectedUser.passwordx}
               </p>
             </div>
           ) : (
