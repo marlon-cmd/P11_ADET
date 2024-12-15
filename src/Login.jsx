@@ -37,7 +37,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${API_ENDPOINT}/api/auth/login`, {
+      const response = await axios.post(`${API_ENDPOINT}/auth/login`, {
         username,
         passwordx,
       });
@@ -59,10 +59,20 @@ const Login = () => {
   };
 
   return (
-    <>
+    <div style={{
+      backgroundImage: `url('https://scontent.fwnp1-1.fna.fbcdn.net/v/t39.30808-6/273010782_7268892576515969_1273660350451927503_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=86c6b0&_nc_eui2=AeE_obbl4nbEs0wMQy78ZLmjFZpVPA5GUE0VmlU8DkZQTTLPHjmdWDMVBFPigvvlvw0ibviMu6zpDTGU60d3t2bJ&_nc_ohc=PYC5n4kcaVUQ7kNvgFZ05CS&_nc_zt=23&_nc_ht=scontent.fwnp1-1.fna&_nc_gid=Az_c2z6sTvyodAuGlfojZa_&oh=00_AYACTY1fo0XlLwJmzY0r2Nm56elwZtzq4Iet1p93dyZbOA&oe=67643542')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center -500px',
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      right: '0',
+      bottom: '0',
+      zIndex: '-1', // Make sure it's behind the content
+    }}>
       <Navbar
         style={{
-          background: 'linear-gradient(blue, #e096d7 0%, #2575fc 100%)',
+          background: 'linear-gradient(to right, #CE203C, #272822)',
           padding: '1rem',
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
         }}
@@ -70,7 +80,7 @@ const Login = () => {
       >
         <Container>
           <Navbar.Brand style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 'bold', fontSize: '1.5rem', color: '#fff' }}>
-            My College Portal
+            PNHS Student Portal
           </Navbar.Brand>
         </Container>
       </Navbar>
@@ -80,9 +90,11 @@ const Login = () => {
           <Col md={4}>
             <div
               className="card"
-              style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)', borderRadius: '12px', background: '#ffffff', padding: '20px' }}
+              style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)', borderRadius: '12px', background: '#ffffff', padding: '20px', 
+                backgroundColor: 'rgba(255, 255, 255, 0.48)', // Semi-transparent white
+              }}
             >
-              <h4 className="text-center" style={{ fontFamily: "'Roboto', sans-serif", fontWeight: '700', color: '#333' }}>
+              <h4 className="text-center" style={{ fontFamily: "'Roboto', sans-serif", fontWeight: 'bold', color: 'black' }}>
                 Login
               </h4>
 
@@ -94,7 +106,7 @@ const Login = () => {
 
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formUsername">
-                  <Form.Label>Username</Form.Label>
+                  <Form.Label style={{fontWeight: 'bold', color: 'black'}}>Username</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Enter username"
@@ -105,7 +117,7 @@ const Login = () => {
                 </Form.Group>
 
                 <Form.Group controlId="formPassword" className="mt-3">
-                  <Form.Label>Password</Form.Label>
+                  <Form.Label style={{fontWeight: 'bold', color: 'black'}}>Password</Form.Label>
                   <div className="input-group">
                     <Form.Control
                       type={isPasswordVisible ? 'text' : 'password'}
@@ -129,8 +141,8 @@ const Login = () => {
               </Form>
 
               <div className="mt-3">
-                <p>Don't have an account?</p>
-                <Button variant="link" onClick={() => navigate('/register')}>
+                <p style={{fontWeight: 'bold', color: '#1E201E'}}>Don't have an account?</p>
+                <Button variant="link" onClick={() => navigate('/register')} style={{fontWeight: 'bold', color: '#03346E'}}>
                   Register
                 </Button>
               </div>
@@ -138,7 +150,7 @@ const Login = () => {
           </Col>
         </Row>
       </Container>
-    </>
+    </div>
   );
 };
 
