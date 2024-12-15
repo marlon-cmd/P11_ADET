@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Form from 'react-bootstrap/Form';
@@ -9,16 +10,24 @@ import Col from 'react-bootstrap/Col';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button';
+import {jwtDecode} from 'jwt-decode';
 import { API_ENDPOINT } from './Api';
+
 import Swal from 'sweetalert2';
+
 import Modal from 'react-bootstrap/Modal';
 import ModalBody from 'react-bootstrap/ModalBody';
 import ModalFooter from 'react-bootstrap/ModalFooter';
-import {jwtDecode} from 'jwt-decode';
+
 
 function Dashboard() {
   const [user, setUser] = useState([]);  // For storing decoded user info
   const navigate = useNavigate();
+  const [showUpdateModal, setShowUpdateModal] = useState(false); // State for showing update modal
+  const [currentUser, setCurrentUser] = useState(null); // Store the user being updated
+  const [newUsername, setNewUsername] = useState(''); // For the new username
+  const [newFullname, setNewFullname] = useState(''); // For the new fullname
+  const [newPassword, setNewPassword] = useState(''); // For the new password
 
   // Fetch and decode user ID when the component mounts
   useEffect(() => {
@@ -51,11 +60,12 @@ function Dashboard() {
   // Display Users
   const [users, setUsers] = useState([]);
 
+      useEffect (()=> {
+        fetchData();
+      }, [])
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try{
-
+      
+      const fetchData = async () => {
 
         const userdata = localStorage.getItem('token');
         const token = userdata;
@@ -67,14 +77,11 @@ function Dashboard() {
           Authorization: token
         }
 
-       const response = await axios.get(`${API_ENDPOINT}/user`, {headers: headers});
-       setUsers(response.data);
-       } catch (error) {
-        console.error('Cannot fetch data', error)
-      }
-    }
-    fetchData();
-  }, [])
+        const response = await axios.get(`${API_ENDPOINT}/user`, {headers: headers});
+      setUsers(response.data);
+      } 
+       
+
 
   //Delete User
   const deleteUser = async (id) => {
@@ -104,31 +111,18 @@ function Dashboard() {
 
     try {
       const response = await axios.delete(`${API_ENDPOINT}/user/${id}`, { headers });
-    
-      console.log('Delete Response:', response); // Debug API response
-    
+  
       Swal.fire({
-        icon: 'success',
-        text: 'Successfully Deleted',
+          icon: "success",
+          text: "Successfully Deleted"
       });
-    
-      fetchData(); // Refetch users list
-    } catch (error) {
-      console.error('Error Response:', error.response); // Log detailed error
-      let errorMessage = 'An unexpected error occurred';
-    
+      fetchData();
+  } catch (error) {
       if (error.response) {
-        errorMessage = error.response.data?.message || errorMessage;
-      }
-    
-      Swal.fire({
-        text: errorMessage,
-        icon: 'error',
-      });
-    }
-    
-    
-  };
+          console.log("Delete Response:", response);
+      }      
+  }
+}
 
  
 
@@ -162,32 +156,13 @@ const createUser = async (e) => {
     await axios.post(`${API_ENDPOINT}/user`, {fullname, username, passwordx}, { headers: headers }).then(({ data }) => {
         Swal.fire({
             icon: "success",
-            text: data.message
+            text: "Successfully Created!"
         });
+        handleClose();
         fetchData();
     }).catch((error) => {
       if (error.response) {
-          // The request was made, but the server responded with an error
-          if (error.response.status === 422) {
-              setValidationError(error.response.data.errors);
-          } else {
-              Swal.fire({
-                  text: error.response.data.message || "An error occurred",
-                  icon: "error"
-              });
-          }
-      } else if (error.request) {
-          // The request was made, but no response was received
-          Swal.fire({
-              text: "No response from server. Please try again later.",
-              icon: "error"
-          });
-      } else {
-          // Something happened while setting up the request
-          Swal.fire({
-              text: `Error: ${error.message}`,
-              icon: "error"
-            });
+        console.log("Delete Response:", response); 
         }
     });
 };
@@ -203,20 +178,81 @@ const handleShow1 = (row_users) => {
     setShow1(true);
 };
 
-// console.log(row_users);
 
+
+//Update Users
+const handleEdit = (users) => {
+  setCurrentUser(users);
+  setNewFullname(users.fullname);
+  setNewUsername(users.username);
+  setNewPassword(users.passwordx);
+  setShowUpdateModal(true); // Open the update modal
+};
+
+const updateUsers = async (e) => {
+  e.preventDefault();
+
+  if (!newUsername || !newFullname || !newPassword) {
+    Swal.fire({
+      text: 'Username, Password, and Fullname are required!',
+      icon: 'error',
+    });
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+
+    const headers = {
+      accept: 'application/json',
+      Authorization: token,
+    };
+
+    // Prepare the updated data
+    const updatedUser = {
+      username: newUsername,
+      fullname: newFullname,
+      passwordx: newPassword
+    };
+
+    // Send the update request
+    const response = await axios.put(`${API_ENDPOINT}/user/${currentUser.id}`, updatedUser, { headers });
+
+    if (response.status === 200) {
+      Swal.fire({
+        icon: 'success',
+        text: 'User updated successfully!',
+      });
+
+      // Fetch the updated list of users
+      fetchData();
+      setShowUpdateModal(false); // Close the modal after update
+    }
+  } catch (error) {
+    console.error('Error updating user:', error);
+    Swal.fire({
+      text: 'An error occurred while updating user data.',
+      icon: 'error',
+    });
+  }
+};
+
+const handleCloseModal = () => {
+  setShowUpdateModal(false); // Close modal if the user cancels
+};
 
 
   // Render the user table
   return (
     <>
-      <Navbar style = {{background: 'linear-gradient(blue, #e096d7 0%, #2575fc 100%)',
+      <Navbar style={{
+          background: 'linear-gradient(to right, #CE203C, #272822 )',
           padding: '1rem',
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
         }}
         variant="dark">
         <Container>
-          <Navbar.Brand href="#home">My College Portal</Navbar.Brand>
+          <Navbar.Brand href="#home">PNHS Student Portal</Navbar.Brand>
           <Nav className="me-auto">
             <Nav.Link href="#users">Students</Nav.Link>
             <Nav.Link href="#departments">Departments</Nav.Link>
@@ -225,7 +261,7 @@ const handleShow1 = (row_users) => {
 
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              <NavDropdown title={user ? `User: ${user.username}` : 'Dropdown'} id="basic-nav-dropdown" align="end">
+              <NavDropdown title={user ? `User: ${user.username}` : 'Dropdown'} id="basic-nav-dropdown" align="end" style={{fontWeight: 'bold'}}>
                 <NavDropdown.Item href="#">Profile</NavDropdown.Item>
                 <NavDropdown.Item href="#">Settings</NavDropdown.Item>
                 <NavDropdown.Item href="#" onClick={handleLogout}>
@@ -242,7 +278,7 @@ const handleShow1 = (row_users) => {
       <div className="container">
         <div className="col-12">
           <Button variant="btn btn-success mb-2 float-end btn-sm me-2" onClick={handleShow} style={{
-          background: 'linear-gradient(blue, #e096d7 0%, #2575fc 100%)',
+          background:  '#99201C',
           padding: '1rem',
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
         }}>
@@ -256,7 +292,7 @@ const handleShow1 = (row_users) => {
               <th style={{ padding: 1, margin: 0 }}><center>ID</center></th>
               <th style={{ padding: 1, margin: 0 }}><center>Username</center></th>
               <th style={{ padding: 1, margin: 0 }}><center>Password</center></th>
-              <th style={{ padding: 1, margin: 0 }}>
+              <th style={{ padding: 1, margin: 0, width: '260px' }}>
                 <center>Action</center>
               </th>
             </tr>
@@ -271,13 +307,13 @@ const handleShow1 = (row_users) => {
                   <td style={{ padding: 1, margin: 0 }}>{row_users.fullname}</td>
                   <td style={{ padding: 1, margin: 0 }}>
                     <center>
-                      <Button variant="secondary" size="sm" onClick={() => handleShow1(row_users)}>
+                      <Button variant="secondary" size="sm" onClick={() => handleShow1(row_users)} style={{marginRight: '6px'}}>
                         Read
                       </Button>
-                      <Button variant="danger" size="sm" onClick={() => deleteUser (row_users.id)}>
+                      <Button variant="danger" size="sm" onClick={() => deleteUser (row_users.id)}  style={{marginRight: '6px'}}>
                         Delete
                       </Button>
-                      <Button variant="success" size="sm">
+                      <Button variant="success" size="sm" onClick={() => handleEdit(row_users)}>
                         Update
                       </Button>
                     </center>
@@ -365,6 +401,52 @@ const handleShow1 = (row_users) => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <div>
+        {/* Update User Modal */}
+      <Modal show={showUpdateModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Update User</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={updateUsers}>
+            <Form.Group controlId="formUsername">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formFullname">
+              <Form.Label>FullName</Form.Label>
+              <Form.Control
+                type="text"
+                value={newFullname}
+                onChange={(e) => setNewFullname(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formFullname">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="text"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Button variant="primary" type="submit" style={{ marginTop: '10px' }}>
+              Update
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      </div>
     </>
   );
 }
