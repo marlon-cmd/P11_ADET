@@ -30,6 +30,11 @@ function Dashboard() {
   const [newPassword, setNewPassword] = useState(''); // For the new password
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false); // To toggle feedback modal
+  const [feedbackText, setFeedbackText] = useState(''); // User feedback text
+  const [feedbackType, setFeedbackType] = useState('General'); // Feedback type (e.g., bug report, suggestion)
+  const [rating, setRating] = useState(5); // Rating from 1 to 5
+
   useEffect(() => {
     // Fetch the saved theme from localStorage when the component mounts
     const savedTheme = localStorage.getItem('theme');
@@ -86,6 +91,60 @@ function Dashboard() {
     console.error('Logout Failed', error)
    }
   };
+
+
+   // Show Feedback Modal
+   const openFeedbackModal = () => setShowFeedbackModal(true);
+   const closeFeedbackModal = () => setShowFeedbackModal(false);
+ 
+   // Handle feedback form submission
+   const submitFeedback = async (e) => {
+     e.preventDefault();
+ 
+     if (!feedbackText.trim()) {
+       Swal.fire({
+         text: 'Feedback text is required!',
+         icon: 'error',
+       });
+       return;
+     }
+ 
+     try {
+       const token = localStorage.getItem('token');
+       const headers = {
+         accept: 'application/json',
+         Authorization: token,
+       };
+ 
+       // Send feedback data to the backend
+       const feedbackData = {
+        feedback_type: feedbackType,  // change 'type' to 'feedback_type'
+        feedback_text: feedbackText,  // change 'text' to 'feedback_text'
+        rating: rating,
+       };
+
+       console.log(feedbackData); // Log the feedback data being sent
+
+ 
+       await axios.post(`${API_ENDPOINT}/feedback`, feedbackData, { headers });
+ 
+       Swal.fire({
+         icon: 'success',
+         text: 'Thank you for your feedback!',
+       });
+ 
+       closeFeedbackModal(); // Close modal after submission
+       setFeedbackText(''); // Clear feedback text
+       setFeedbackType('General'); // Reset feedback type
+       setRating(5); // Reset rating to default
+     } catch (error) {
+      if (error.response) {
+       console.log('Error submitting feedback:', error);
+     }
+    }
+    };
+
+
 
   // Display Users
   const [users, setUsers] = useState([]);
@@ -283,7 +342,7 @@ const handleCloseModal = () => {
         }}
         variant="dark">
         <Container>
-          <Navbar.Brand href="#home">PNHS Student Portal</Navbar.Brand>
+          <Navbar.Brand href="#home">Pasacao National High School</Navbar.Brand>
           <Nav className="me-auto">
             <Nav.Link href="#users">Students</Nav.Link>
             <Nav.Link href="#departments">Departments</Nav.Link>
@@ -298,6 +357,9 @@ const handleCloseModal = () => {
                 <NavDropdown.Item href="#" onClick={toggleTheme}>
                   {isDarkMode? 'Light Mode' : 'Dark Mode'}
                   </NavDropdown.Item>
+                  <NavDropdown.Item href="#" onClick={openFeedbackModal}>
+                  Give Feedback
+                </NavDropdown.Item>
                 <NavDropdown.Item href="#" onClick={handleLogout}>
                   Logout
                 </NavDropdown.Item>
@@ -478,6 +540,45 @@ const handleCloseModal = () => {
 
             <Button variant="primary" type="submit" style={{ marginTop: '10px' }}>
               Update
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Feedback Modal */}
+      <Modal show={showFeedbackModal} onHide={closeFeedbackModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Submit Feedback</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={submitFeedback}>
+            <Form.Group controlId="feedbackType">
+              <Form.Label>Feedback Type</Form.Label>
+              <Form.Control as="select" value={feedbackType} onChange={(e) => setFeedbackType(e.target.value)}>
+                <option>General</option>
+                <option>Bug Report</option>
+                <option>Feature Request</option>
+              </Form.Control>
+            </Form.Group>
+
+            <Form.Group controlId="feedbackText">
+              <Form.Label>Feedback</Form.Label>
+              <Form.Control as="textarea" rows={4} value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)} required />
+            </Form.Group>
+
+            <Form.Group controlId="rating">
+              <Form.Label>Rating</Form.Label>
+              <Form.Control as="select" value={rating} onChange={(e) => setRating(parseInt(e.target.value))}>
+                {[1, 2, 3, 4, 5].map((rate) => (
+                  <option key={rate} value={rate}>
+                    {rate} Star{rate > 1 ? 's' : ''}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+
+            <Button variant="primary" type="submit" style={{ marginTop: '10px' }}>
+              Submit Feedback
             </Button>
           </Form>
         </Modal.Body>
