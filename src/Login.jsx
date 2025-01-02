@@ -60,7 +60,7 @@ const Login = () => {
 
   return (
     <div style={{
-      backgroundImage: `url('https://scontent.fwnp1-1.fna.fbcdn.net/v/t39.30808-6/273010782_7268892576515969_1273660350451927503_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=86c6b0&_nc_eui2=AeE_obbl4nbEs0wMQy78ZLmjFZpVPA5GUE0VmlU8DkZQTTLPHjmdWDMVBFPigvvlvw0ibviMu6zpDTGU60d3t2bJ&_nc_ohc=PYC5n4kcaVUQ7kNvgFZ05CS&_nc_zt=23&_nc_ht=scontent.fwnp1-1.fna&_nc_gid=Az_c2z6sTvyodAuGlfojZa_&oh=00_AYACTY1fo0XlLwJmzY0r2Nm56elwZtzq4Iet1p93dyZbOA&oe=67643542')`,
+      backgroundImage: `url('https://m.facebook.com/photo.php?fbid=548688193711984')`,
       backgroundSize: 'cover',
       backgroundPosition: 'center -500px',
       position: 'absolute',
